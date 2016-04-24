@@ -1,4 +1,4 @@
-//Mani Vivek
+
 //Collect the three items and you win :D
 #include "GameClass.h"
 #include "entity.h"
@@ -167,7 +167,10 @@ bool GameClass::readHeader(std::ifstream &stream) {
 			levelData[i] = new unsigned char[mapWidth];
 		}
 		return true;
-	}}bool GameClass::readLayerData(std::ifstream &stream) {
+	}
+}
+
+bool GameClass::readLayerData(std::ifstream &stream) {
 	std::string line;
 	while (std::getline(stream, line)) {
 		if (line == "") { break; }
@@ -220,7 +223,24 @@ bool GameClass::readEntityData(std::ifstream &stream) {
 	}
 	return true;
 }
-void GameClass::placeEntity(string type, float placeX, float placeY){	if (type == "player"){		player = new Entity(placeX, placeY, 98, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "coin"){		coin = new Entity(placeX+2.4, placeY-0.8, 49, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "key"){		key = new Entity(placeX+3.75, placeY-1.45, 86, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "door"){		door = new Entity(placeX, placeY-0.2, 7, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}}
+
+void GameClass::placeEntity(string type, float placeX, float placeY){
+	if (type == "player"){
+		player = new Entity(placeX, placeY, 98, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
+	}
+
+	if (type == "coin"){
+		coin = new Entity(placeX+2.4, placeY-0.8, 49, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
+	}
+
+	if (type == "key"){
+		key = new Entity(placeX+3.75, placeY-1.45, 86, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
+	}
+	if (type == "door"){
+		door = new Entity(placeX, placeY-0.2, 7, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
+	}
+}
+
 void GameClass::Update(float elapsed) {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
