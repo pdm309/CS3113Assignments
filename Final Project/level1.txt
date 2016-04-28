@@ -73,3 +73,8 @@ location=4,45,0,0
 # aimCursor
 type=aimCursor
 location=5,10,0,0
+
+[ObjectsLayer]
+# bullet
+type=bullet
+location=4,9,0,0

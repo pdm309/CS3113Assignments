@@ -52,6 +52,7 @@ public:
 	Entity* enemy2;
 	Entity* enemy3;
 	Entity* aimCursor;
+	Entity* bullet;
 	Mix_Music *music;
 	Mix_Chunk *someSound;
 	bool hit1;

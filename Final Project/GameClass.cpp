@@ -23,7 +23,7 @@ GameClass::GameClass() {
 
 void GameClass::Init() {
 	SDL_Init(SDL_INIT_VIDEO);
-	displayWindow = SDL_CreateWindow("Paul Merritt's Hotline Los Angeles", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL);
+	displayWindow = SDL_CreateWindow("Paul Merritt's Game", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL);
 	SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
 	SDL_GL_MakeCurrent(displayWindow, context);
 	glViewport(0, 0, 800, 600);
@@ -218,17 +218,21 @@ bool GameClass::readEntityData(std::ifstream &stream) {
 	}
 	return true;
 }
-void GameClass::placeEntity(string type, float placeX, float placeY){	if (type == "player"){		player = new Entity(placeX+.19, placeY-0.995, 98, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "coin"){		enemy1 = new Entity(placeX+0.4, placeY-0.8, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "key"){		enemy2 = new Entity(placeX+3.75, placeY-1.45, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "aimCursor"){		aimCursor = new Entity(0.270000011, -0.995, 50, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "door"){		enemy3 = new Entity(placeX, placeY-0.2, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}}
+void GameClass::placeEntity(string type, float placeX, float placeY){	if (type == "player"){		player = new Entity(placeX+.19, placeY-0.995, 98, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "coin"){		enemy1 = new Entity(placeX+0.4, placeY-0.8, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "key"){		enemy2 = new Entity(placeX+3.75, placeY-1.45, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "aimCursor"){		aimCursor = new Entity(0.270000011, -0.995, 50, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "door"){		enemy3 = new Entity(placeX, placeY-0.2, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "bullet"){		bullet = new Entity(placeX + .19, placeY - 0.995, 8, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}}
 void GameClass::Update(float elapsed) {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
 			done = true;
 		}
-		//else if (event.type == SDL_KEYDOWN) {
-			//if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-				//player->jump();
-			//}
-		//}
+		
+		if (event.type == SDL_MOUSEBUTTONDOWN){
+			aimCursor->shoot();
+		}
+		if (event.type == SDL_MOUSEMOTION){
+			aimCursor->x = (((float)event.motion.x / 800.0f) * 4.444f) - 2.222f;
+			aimCursor->y = (((float)(360 - event.motion.y) / 600.0f) * 3.333f) - 1.667f;
+		}
+		
 	}
 }
 
@@ -239,16 +243,16 @@ void GameClass::Render() {
 	// render stuff
 	switch (state) {
 	case STATE_MAIN_MENU:
-		DrawText(fontTexture, "Welcome to Hotline Los Angeles", -1.1f, 0.25f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
-		DrawText(fontTexture, "Use WASD to move and Mouse/LMD to aim/shoot", -1.1f, -0.25f, 0.095f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		DrawText(fontTexture, "Welcome to My Game!", -1.1f, 0.25f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
+		DrawText(fontTexture, "Use WASD and Mouse", -1.1f, -0.25f, 0.095f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		DrawText(fontTexture, "Space to Start", -1.1f, -0.45f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		break;
 	case STATE_GAME_LEVEL:
 		renderLevel();
 		break;
 	case STATE_LOSER:
-		DrawText(fontTexture, "Congratulations... is what I would say if you won.", -0.9f, 0.3f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
-		DrawText(fontTexture, "Press R to retry, ESC to quit.", -0.8f, -0.4f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		DrawText(fontTexture, "You lost.", -0.9f, 0.3f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
+		DrawText(fontTexture, "Press R to retry.", -0.8f, -0.4f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		break;
 	case STATE_WINNER:
 		DrawText(fontTexture, "Congratulations!", -0.9f, 0.3f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -276,8 +280,14 @@ bool GameClass::processEvents() {
 		player->collidedBottom = false;
 		player->collidedLeft = false;
 		player->collidedRight = false;
+		aimCursor->collidedTop = false;
+		aimCursor->collidedBottom = false;
+		aimCursor->collidedLeft = false;
+		aimCursor->collidedRight = false;
 		entityCollisionY(player);
 		entityCollisionX(player);
+		entityCollisionX(aimCursor);
+		entityCollisionY(aimCursor);
 		Render();
 		FixedUpdate();
 		
@@ -361,7 +371,21 @@ void GameClass::FixedUpdate(){
 	player->x += player->velocity_x * FIXED_TIMESTEP;
 	player->y += player->velocity_y * FIXED_TIMESTEP;
 	
-	//aimCursor->aimMovement();
+	aimCursor->aimMovement();
+	/*
+	if (aimCursor->x > 600){
+ 		aimCursor->x = 600;
+	}
+	if (aimCursor->y > 400){
+		aimCursor->y = 400;
+	}
+	if (aimCursor->x < 200){
+		aimCursor->x = 200;
+	}
+	if (aimCursor->y < 200){
+		aimCursor->y = 200;
+	}
+	*/
 	//aimCursor->velocity_x = lerp(aimCursor->velocity_x, 0.0f, FIXED_TIMESTEP * aimCursor->friction_x);
 	//aimCursor->velocity_y = lerp(aimCursor->velocity_y, 0.0f, FIXED_TIMESTEP * aimCursor->friction_y);
 	//aimCursor->velocity_x += aimCursor->acceleration_x * FIXED_TIMESTEP;
@@ -490,5 +514,5 @@ void GameClass::renderLevel(){
 	enemy2->Draw(translateX, translateY);
 	enemy3->Draw(translateX, translateY);
 	aimCursor->Draw(translateX, translateY);
-
+	bullet->Draw(translateX, translateY);
 }

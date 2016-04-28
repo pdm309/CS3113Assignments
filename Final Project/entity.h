@@ -24,6 +24,7 @@ public:
 	float lerp(float v0, float v1, float t);
 	void movement();
 	void aimMovement();
+	void shoot();
 	float x;
 	float y;
 	float gravity;

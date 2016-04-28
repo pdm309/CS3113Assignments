@@ -212,13 +212,13 @@ void Entity::movement(){
 	*/
 }
 void Entity::aimMovement(){
-	const Uint8 *keys = SDL_GetKeyboardState(NULL);
-	if (keys[SDL_MOUSEMOTION]) {
-		velocity_x = .01;
-		velocity_y = .01;
-	}
-	else {
-		velocity_x = 0;
-		velocity_y = 0;
-	}
+	//int a = static_cast<int>(x);
+	//int b = static_cast<int>(y);
+	//Uint32 position = SDL_GetMouseState(&a,&b);
+	//x = (float)a;
+	//y = (float)b;
+}
+
+void Entity::shoot(){
+
 }
