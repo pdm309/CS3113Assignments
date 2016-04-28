@@ -13,7 +13,7 @@
 #include <SDL_mixer.h>
 using namespace std;
 
-enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL, STATE_WINNER };
+enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL, STATE_WINNER, STATE_LOSER };
 class GameClass {
 public:
 	GameClass();
@@ -48,9 +48,10 @@ public:
 	void renderLevel();
 	void FixedUpdate();
 	Entity* player;
-	Entity* coin;
-	Entity* key;
-	Entity* door;
+	Entity* enemy1;
+	Entity* enemy2;
+	Entity* enemy3;
+	Entity* aimCursor;
 	Mix_Music *music;
 	Mix_Chunk *someSound;
 	bool hit1;

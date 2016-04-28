@@ -23,6 +23,7 @@ public:
 	void FixedUpdate();
 	float lerp(float v0, float v1, float t);
 	void movement();
+	void aimMovement();
 	float x;
 	float y;
 	float gravity;

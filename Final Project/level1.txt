@@ -69,3 +69,7 @@ location=49,3,0,0
 type=player2
 location=4,45,0,0
 
+[ObjectsLayer]
+# aimCursor
+type=aimCursor
+location=5,10,0,0

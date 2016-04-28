@@ -134,10 +134,10 @@ void Entity::render(){
 }
 
 bool Entity::collidesWith(Entity *entity){
-	if (x + (width) > (entity->x - ((entity->width))) &&
-		(x - (width)) < (entity->x + (entity->width)) &&
-		(y + (height)) > (entity->y - (entity->height)) &&
-		(y - (height)) < (entity->y + (entity->height)))
+	if (x + (width/4) > (entity->x - ((entity->width))) &&
+		(x - (width/4)) < (entity->x + (entity->width)) &&
+		(y + (height/4)) > (entity->y - (entity->height)) &&
+		(y - (height/4)) < (entity->y + (entity->height)))
 	{
 		return true;
 	}
@@ -169,44 +169,56 @@ void Entity::FixedUpdate(){
 
 void Entity::movement(){
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
-	if (keys[SDL_SCANCODE_LEFT] && !keys[SDL_SCANCODE_RIGHT]) {
+	if (keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_D]) {
 		acceleration_x = -3.0;
 		velocity_x = -1.0;
 	}
-	if (keys[SDL_SCANCODE_RIGHT] && !keys[SDL_SCANCODE_LEFT]) {
+	if (keys[SDL_SCANCODE_D] && !keys[SDL_SCANCODE_A]) {
 		acceleration_x = 3.0;
 		velocity_x = 1.0;
 	}
-	if (keys[SDL_SCANCODE_DOWN] && !keys[SDL_SCANCODE_UP]) {
+	if (keys[SDL_SCANCODE_S] && !keys[SDL_SCANCODE_W]) {
 		acceleration_y = -3.0;
 		velocity_y = -1.0;
 	}
-	if (keys[SDL_SCANCODE_UP] && !keys[SDL_SCANCODE_DOWN]) {
+	if (keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_S]) {
 		acceleration_y = 3.0;
 		velocity_y = 1.0;
 	}
-	
+
 	//if no arrows pressed
-	if (!keys[SDL_SCANCODE_UP] && !keys[SDL_SCANCODE_DOWN] && !keys[SDL_SCANCODE_LEFT] && !keys[SDL_SCANCODE_RIGHT]) {
+	if (!keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_S] && !keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_D]) {
 		acceleration_x = 0;
 		acceleration_y = 0;
 		velocity_y = 0.0;
 		velocity_x = 0.0;
 	}
+
 	/*
 	//if up and down pressed, no vertical movement
-	if (keys[SDL_SCANCODE_UP] && keys[SDL_SCANCODE_DOWN]) {
-		//acceleration_x = 0;
-		acceleration_y = 0;
-		velocity_y = 0.0;
-		velocity_x = 0.0;
+	if (keys[SDL_SCANCODE_W] && keys[SDL_SCANCODE_S]) {
+	//acceleration_x = 0;
+	acceleration_y = 0;
+	velocity_y = 0.0;
+	velocity_x = 0.0;
 	}
 	//if left and right pressed, no horizontal movement
-	if (keys[SDL_SCANCODE_LEFT] && keys[SDL_SCANCODE_RIGHT]) {
-		acceleration_x = 0;
-		//acceleration_y = 0;
-		velocity_y = 0.0;
-		velocity_x = 0.0;
+	if (keys[SDL_SCANCODE_A] && keys[SDL_SCANCODE_D]) {
+	acceleration_x = 0;
+	//acceleration_y = 0;
+	velocity_y = 0.0;
+	velocity_x = 0.0;
 	}
 	*/
+}
+void Entity::aimMovement(){
+	const Uint8 *keys = SDL_GetKeyboardState(NULL);
+	if (keys[SDL_MOUSEMOTION]) {
+		velocity_x = .01;
+		velocity_y = .01;
+	}
+	else {
+		velocity_x = 0;
+		velocity_y = 0;
+	}
 }

@@ -1,5 +1,3 @@
-
-//Collect the three items and you win :D
 #include "GameClass.h"
 #include "entity.h"
 
@@ -25,7 +23,7 @@ GameClass::GameClass() {
 
 void GameClass::Init() {
 	SDL_Init(SDL_INIT_VIDEO);
-	displayWindow = SDL_CreateWindow("Paul Merritt's Platformer", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL);
+	displayWindow = SDL_CreateWindow("Paul Merritt's Hotline Los Angeles", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_OPENGL);
 	SDL_GLContext context = SDL_GL_CreateContext(displayWindow);
 	SDL_GL_MakeCurrent(displayWindow, context);
 	glViewport(0, 0, 800, 600);
@@ -220,17 +218,17 @@ bool GameClass::readEntityData(std::ifstream &stream) {
 	}
 	return true;
 }
-void GameClass::placeEntity(string type, float placeX, float placeY){	if (type == "player"){		player = new Entity(placeX+.19, placeY-0.995, 98, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "coin"){		coin = new Entity(placeX+2.4, placeY-0.8, 49, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "key"){		key = new Entity(placeX+3.75, placeY-1.45, 86, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "door"){		door = new Entity(placeX, placeY-0.2, 7, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}}
+void GameClass::placeEntity(string type, float placeX, float placeY){	if (type == "player"){		player = new Entity(placeX+.19, placeY-0.995, 98, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "coin"){		enemy1 = new Entity(placeX+0.4, placeY-0.8, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "key"){		enemy2 = new Entity(placeX+3.75, placeY-1.45, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "aimCursor"){		aimCursor = new Entity(0.270000011, -0.995, 50, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "door"){		enemy3 = new Entity(placeX, placeY-0.2, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}}
 void GameClass::Update(float elapsed) {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
 			done = true;
 		}
-		else if (event.type == SDL_KEYDOWN) {
-			if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
-				player->jump();
-			}
-		}
+		//else if (event.type == SDL_KEYDOWN) {
+			//if (event.key.keysym.scancode == SDL_SCANCODE_SPACE) {
+				//player->jump();
+			//}
+		//}
 	}
 }
 
@@ -241,16 +239,20 @@ void GameClass::Render() {
 	// render stuff
 	switch (state) {
 	case STATE_MAIN_MENU:
-		DrawText(fontTexture, "Welcome to The Platformer", -1.1f, 0.25f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
-		DrawText(fontTexture, "Use Left, Right, and Space", -1.1f, -0.25f, 0.095f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		DrawText(fontTexture, "Welcome to Hotline Los Angeles", -1.1f, 0.25f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
+		DrawText(fontTexture, "Use WASD to move and Mouse/LMD to aim/shoot", -1.1f, -0.25f, 0.095f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		DrawText(fontTexture, "Space to Start", -1.1f, -0.45f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		break;
 	case STATE_GAME_LEVEL:
 		renderLevel();
 		break;
+	case STATE_LOSER:
+		DrawText(fontTexture, "Congratulations... is what I would say if you won.", -0.9f, 0.3f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
+		DrawText(fontTexture, "Press R to retry, ESC to quit.", -0.8f, -0.4f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		break;
 	case STATE_WINNER:
 		DrawText(fontTexture, "Congratulations!", -0.9f, 0.3f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
-		DrawText(fontTexture, "Press esc to quit.", -0.8f, -0.4f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		DrawText(fontTexture, "Press ESC to quit.", -0.8f, -0.4f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		break;
 	}
 	SDL_GL_SwapWindow(displayWindow);
@@ -299,23 +301,23 @@ bool GameClass::processEvents() {
 		}
 	}
 	else if (state == STATE_GAME_LEVEL ){
-		if (player->collidesWith(coin)){
-			coin = new Entity(coin->x, coin->y, 12, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
+		if (player->collidesWith(enemy1)){
+			//coin = new Entity(coin->x, coin->y, 12, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
 			//Mix_PlayChannel(-1, someSound, 0);
 			hit1 = true;
 		}
-		if (player->collidesWith(key)){
-			key = new Entity(key->x, key->y, 12, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
+		if (player->collidesWith(enemy2)){
+			//enemy1 = new Entity(enemy1->x, enemy1->y, 12, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
 			//Mix_PlayChannel(-1, someSound, 0);
 			hit2 = true;
 		}
-		if (player->collidesWith(door)){
-			door = new Entity(door->x, door->y, 12, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
+		if (player->collidesWith(enemy3)){
+			//door = new Entity(door->x, door->y, 12, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
 			//Mix_PlayChannel(-1, someSound, 0);
 			hit3 = true;
 		}
-		if ((hit1 & hit2 & hit3)){
-			state = STATE_WINNER;
+		if ((hit1 || hit2 || hit3)){
+			state = STATE_LOSER;
 		}
 	}
 	else if (state == STATE_WINNER){
@@ -323,7 +325,20 @@ bool GameClass::processEvents() {
 			done = true;
 		}
 	}
-	
+	else if (state == STATE_LOSER) {
+		if (keys[SDL_SCANCODE_ESCAPE]){
+			done = true;
+		}
+		else if (keys[SDL_SCANCODE_R]){
+			done = false;
+			hit1 = false;
+			hit2 = false;
+			hit3 = false;
+			player->x = 0.270000011;
+			player->y = -0.995;
+			state = STATE_GAME_LEVEL;
+		}
+	}
 	return done;
 
 }
@@ -345,7 +360,14 @@ void GameClass::FixedUpdate(){
 	player->velocity_y += player->acceleration_y * FIXED_TIMESTEP;
 	player->x += player->velocity_x * FIXED_TIMESTEP;
 	player->y += player->velocity_y * FIXED_TIMESTEP;
-
+	
+	//aimCursor->aimMovement();
+	//aimCursor->velocity_x = lerp(aimCursor->velocity_x, 0.0f, FIXED_TIMESTEP * aimCursor->friction_x);
+	//aimCursor->velocity_y = lerp(aimCursor->velocity_y, 0.0f, FIXED_TIMESTEP * aimCursor->friction_y);
+	//aimCursor->velocity_x += aimCursor->acceleration_x * FIXED_TIMESTEP;
+	//aimCursor->velocity_y += aimCursor->acceleration_y * FIXED_TIMESTEP;
+	//aimCursor->x += aimCursor->velocity_x * FIXED_TIMESTEP;
+	//aimCursor->y += aimCursor->velocity_y * FIXED_TIMESTEP;
 }
 
 void GameClass::getTileCoordinates(float tileX, float tileY, int *gridX, int *gridY) {
@@ -464,8 +486,9 @@ void GameClass::renderLevel(){
 
 	// draw the players
 	player->Draw(translateX, translateY);
-	coin->Draw(translateX, translateY);
-	door->Draw(translateX, translateY);
-	key->Draw(translateX, translateY);
+	enemy1->Draw(translateX, translateY);
+	enemy2->Draw(translateX, translateY);
+	enemy3->Draw(translateX, translateY);
+	aimCursor->Draw(translateX, translateY);
 
 }
