@@ -176,10 +176,12 @@ void Entity::movement(){
 	if (keys[SDL_SCANCODE_D] && !keys[SDL_SCANCODE_A]) {
 		acceleration_x = 3.0;
 		velocity_x = 1.0;
+
 	}
 	if (keys[SDL_SCANCODE_S] && !keys[SDL_SCANCODE_W]) {
 		acceleration_y = -3.0;
 		velocity_y = -1.0;
+
 	}
 	if (keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_S]) {
 		acceleration_y = 3.0;
@@ -187,13 +189,14 @@ void Entity::movement(){
 	}
 
 	//if no arrows pressed
-	if (!keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_S] && !keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_D]) {
+	if (!keys[SDL_SCANCODE_A] && !keys[SDL_SCANCODE_D]) {
 		acceleration_x = 0;
-		acceleration_y = 0;
-		velocity_y = 0.0;
 		velocity_x = 0.0;
 	}
-
+	if (!keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_S]){
+		acceleration_y = 0;
+		velocity_y = 0.0;
+	}
 	/*
 	//if up and down pressed, no vertical movement
 	if (keys[SDL_SCANCODE_W] && keys[SDL_SCANCODE_S]) {
