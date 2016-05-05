@@ -27,6 +27,7 @@ public:
 	void shoot();
 	float x;
 	float y;
+	float angle;
 	float gravity;
 	float u;
 	float v;

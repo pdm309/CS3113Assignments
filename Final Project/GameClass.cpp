@@ -228,10 +228,14 @@ void GameClass::Update(float elapsed) {
 		if (event.type == SDL_MOUSEBUTTONDOWN){
 			aimCursor->shoot();
 		}
-		if (event.type == SDL_MOUSEMOTION){
-			aimCursor->x = (((float)event.motion.x / 800.0f) * 4.444f) - 2.222f;
-			aimCursor->y = (((float)(360 - event.motion.y) / 600.0f) * 3.333f) - 1.667f;
-		}
+		/*if (event.type == SDL_MOUSEMOTION){
+			float aimx = (((float)event.motion.x / 800.0f) * 2.66f) - 1.33f;
+			aimCursor->x = event.motion.x;
+			printf("aim x = %d\n", aimCursor->x);
+			float aimy = (((float)(600 - event.motion.y) / 600.0f) * 2.0f) - 1.0f;
+			aimCursor->y = event.motion.y;
+			printf("aim y = %d\n", aimCursor->y);
+		}*/
 		
 	}
 }
@@ -286,8 +290,8 @@ bool GameClass::processEvents() {
 		aimCursor->collidedRight = false;
 		entityCollisionY(player);
 		entityCollisionX(player);
-		entityCollisionX(aimCursor);
-		entityCollisionY(aimCursor);
+		//entityCollisionX(aimCursor);
+		//entityCollisionY(aimCursor);
 		Render();
 		FixedUpdate();
 		
@@ -372,26 +376,8 @@ void GameClass::FixedUpdate(){
 	player->y += player->velocity_y * FIXED_TIMESTEP;
 	
 	aimCursor->aimMovement();
-	/*
-	if (aimCursor->x > 600){
- 		aimCursor->x = 600;
-	}
-	if (aimCursor->y > 400){
-		aimCursor->y = 400;
-	}
-	if (aimCursor->x < 200){
-		aimCursor->x = 200;
-	}
-	if (aimCursor->y < 200){
-		aimCursor->y = 200;
-	}
-	*/
-	//aimCursor->velocity_x = lerp(aimCursor->velocity_x, 0.0f, FIXED_TIMESTEP * aimCursor->friction_x);
-	//aimCursor->velocity_y = lerp(aimCursor->velocity_y, 0.0f, FIXED_TIMESTEP * aimCursor->friction_y);
-	//aimCursor->velocity_x += aimCursor->acceleration_x * FIXED_TIMESTEP;
-	//aimCursor->velocity_y += aimCursor->acceleration_y * FIXED_TIMESTEP;
-	//aimCursor->x += aimCursor->velocity_x * FIXED_TIMESTEP;
-	//aimCursor->y += aimCursor->velocity_y * FIXED_TIMESTEP;
+	aimCursor->x = player->x + sin(aimCursor->angle) * 0.5;
+	aimCursor->y = player->y + cos(aimCursor->angle) * 0.5;
 }
 
 void GameClass::getTileCoordinates(float tileX, float tileY, int *gridX, int *gridY) {

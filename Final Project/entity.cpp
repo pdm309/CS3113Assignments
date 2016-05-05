@@ -1,6 +1,6 @@
 
 #include "entity.h"
-
+#define PI 3.14159265
 Entity::Entity(float x, float y, int index, int col, int rows, float scale, GLuint texture)
 	:x(x), y(y), scale(scale), texture(texture) {
 	
@@ -15,6 +15,7 @@ Entity::Entity(float x, float y, int index, int col, int rows, float scale, GLui
 	gravity = 0.0f;
 	friction_x = 0.39f;
 	friction_y = 0.59f;
+	angle = 0;
 	scale = 1.0f;
 	
 }
@@ -215,11 +216,13 @@ void Entity::movement(){
 	*/
 }
 void Entity::aimMovement(){
-	//int a = static_cast<int>(x);
-	//int b = static_cast<int>(y);
-	//Uint32 position = SDL_GetMouseState(&a,&b);
-	//x = (float)a;
-	//y = (float)b;
+	const Uint8 *keys = SDL_GetKeyboardState(NULL);
+	if (keys[SDL_SCANCODE_Q] && !keys[SDL_SCANCODE_E]) {
+		angle -= 5.0*(PI / 180);
+	}
+	else if ((keys[SDL_SCANCODE_E] && !keys[SDL_SCANCODE_Q])) {
+		angle += 5.0*(PI / 180);
+	}
 }
 
 void Entity::shoot(){

@@ -69,6 +69,8 @@ public:
 	GLuint fontTexture;
 	float translateX;
 	float translateY;
+	float aimX;
+	float aimY;
 	int mapWidth;
 	int mapHeight;
 	unsigned char **levelData;
