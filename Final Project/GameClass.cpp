@@ -259,7 +259,7 @@ void GameClass::Render() {
 	switch (state) {
 	case STATE_MAIN_MENU:
 		DrawText(fontTexture, "Welcome to My Game!", -1.1f, 0.25f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
-		DrawText(fontTexture, "Use WASD and Q and E and Space", -1.1f, -0.25f, 0.095f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		DrawText(fontTexture, "Use WASD and JKL", -1.1f, -0.25f, 0.095f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		DrawText(fontTexture, "Space to Start", -1.1f, -0.45f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		break;
 	case STATE_GAME_LEVEL:
