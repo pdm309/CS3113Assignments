@@ -55,6 +55,7 @@ public:
 	Entity* bullet;
 	Mix_Music *music;
 	Mix_Chunk *someSound;
+	Mix_Chunk *deathSound;
 	bool hit1;
 	bool hit2;
 	bool hit3;

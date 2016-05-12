@@ -15,9 +15,10 @@ GameClass::GameClass() {
 	readTileMap();
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
 	music = Mix_LoadMUS("background.mp3");
-	//Mix_PlayMusic(music, -1); // repeat it indefinitely
+	Mix_PlayMusic(music, -1); // repeat it indefinitely
 	
 	someSound = Mix_LoadWAV("cheer.wav");
+	deathSound = Mix_LoadWAV("falling.wav");
 	
 }
 
@@ -114,6 +115,7 @@ GLuint GameClass::LoadTexture(const char *imagePath) {
 GameClass::~GameClass() {
 	Mix_FreeMusic(music);
 	Mix_FreeChunk(someSound);
+	Mix_FreeChunk(deathSound);
 	SDL_Quit();
 }
 
@@ -268,6 +270,7 @@ void GameClass::Render() {
 		DrawText(fontTexture, "Press R to retry.", -0.8f, -0.4f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		break;
 	case STATE_WINNER:
+		Mix_PlayChannel(-1, someSound, 0);
 		DrawText(fontTexture, "Congratulations!", -0.9f, 0.3f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
 		DrawText(fontTexture, "Press ESC to quit.", -0.8f, -0.4f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		break;
@@ -395,7 +398,11 @@ bool GameClass::processEvents() {
 			bullet->y = player->y;
 		}
 		if ((hit1 || hit2 || hit3)){
-			state = STATE_LOSER;
+			Mix_PlayChannel(-1, deathSound, 0);
+			player->scale -= .05;
+			if (player->scale <= 0){
+				state = STATE_LOSER;
+			}
 		}
 		if ((!enemy1->alive && !enemy2->alive && !enemy3->alive)) {
 			state = STATE_WINNER;
@@ -434,48 +441,51 @@ float lerp(float v0, float v1, float t) {
 
 
 void GameClass::FixedUpdate(){
-	player->movement();
-	player->velocity_x += player->gravity * FIXED_TIMESTEP;
-	player->velocity_y += player->gravity * FIXED_TIMESTEP;
-	player->velocity_x = lerp(player->velocity_x, 0.0f, FIXED_TIMESTEP * player->friction_x);
-	player->velocity_y = lerp(player->velocity_y, 0.0f, FIXED_TIMESTEP * player->friction_y);
-	player->velocity_x += player->acceleration_x * FIXED_TIMESTEP;
-	player->velocity_y += player->acceleration_y * FIXED_TIMESTEP;
-	player->x += player->velocity_x * FIXED_TIMESTEP;
-	player->y += player->velocity_y * FIXED_TIMESTEP;
+	if (hit1 == false && hit2 == false && hit3 == false) {
+		player->movement();
+		player->velocity_x += player->gravity * FIXED_TIMESTEP;
+		player->velocity_y += player->gravity * FIXED_TIMESTEP;
+		player->velocity_x = lerp(player->velocity_x, 0.0f, FIXED_TIMESTEP * player->friction_x);
+		player->velocity_y = lerp(player->velocity_y, 0.0f, FIXED_TIMESTEP * player->friction_y);
+		player->velocity_x += player->acceleration_x * FIXED_TIMESTEP;
+		player->velocity_y += player->acceleration_y * FIXED_TIMESTEP;
+		player->x += player->velocity_x * FIXED_TIMESTEP;
+		player->y += player->velocity_y * FIXED_TIMESTEP;
 
-	
 
-	enemy1->x += enemy1->velocity_x;
-	enemy1->y += enemy1->velocity_y;
 
-	enemy2->x += enemy2->velocity_x;
-	enemy2->y += enemy2->velocity_y;
+		enemy1->x += enemy1->velocity_x;
+		enemy1->y += enemy1->velocity_y;
 
-	enemy3->x += enemy3->velocity_x;
-	enemy3->y += enemy3->velocity_y;
+		enemy2->x += enemy2->velocity_x;
+		enemy2->y += enemy2->velocity_y;
 
-	aimCursor->aimMovement();
-	aimCursor->x = player->x + sin(aimCursor->angle) * 0.5;
-	aimCursor->y = player->y + cos(aimCursor->angle) * 0.5;
-	bullet->angle = aimCursor->angle;
-	//if (bullet->velocity_x == 0.0 && bullet->velocity_y == 0.0) {
+		enemy3->x += enemy3->velocity_x;
+		enemy3->y += enemy3->velocity_y;
+
+		aimCursor->aimMovement();
+		aimCursor->x = player->x + sin(aimCursor->angle) * 0.5;
+		aimCursor->y = player->y + cos(aimCursor->angle) * 0.5;
+		bullet->angle = aimCursor->angle;
+		//if (bullet->velocity_x == 0.0 && bullet->velocity_y == 0.0) {
 		bullet->shoot();
-	//}
-	if (bullet->velocity_x > 0.0) {
-		bullet->x += sin(bullet->angle2) * .05;
+		//}
+		if (bullet->velocity_x > 0.0) {
+			bullet->x += sin(bullet->angle2) * .05;
+		}
+		else {
+			bullet->x = player->x;
+			//bullet->velocity_x = 0.0;
+		}
+		if (bullet->velocity_y > 0.0) {
+			bullet->y += cos(bullet->angle2) * .05;
+		}
+		else {
+			bullet->y = player->y;
+			//bullet->velocity_y = 0.0;
+		}
 	}
-	else {
-		bullet->x = player->x;
-		//bullet->velocity_x = 0.0;
-	}
-	if (bullet->velocity_y > 0.0) {
-		bullet->y += cos(bullet->angle2) * .05;
-	}
-	else {
-		bullet->y = player->y;
-		//bullet->velocity_y = 0.0;
-	}
+		
 	
 }
 

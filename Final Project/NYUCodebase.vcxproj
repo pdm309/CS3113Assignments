@@ -75,6 +75,7 @@
     <ClCompile Include="entity.cpp" />
     <ClCompile Include="GameClass.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Matrix.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="entity.h" />
