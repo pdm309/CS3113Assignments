@@ -16,6 +16,7 @@ Entity::Entity(float x, float y, int index, int col, int rows, float scale, GLui
 	friction_x = 0.39f;
 	friction_y = 0.59f;
 	angle = 0;
+	angle2 = 0;
 	scale = 1.0f;
 	
 }
@@ -217,14 +218,74 @@ void Entity::movement(){
 }
 void Entity::aimMovement(){
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
-	if (keys[SDL_SCANCODE_Q] && !keys[SDL_SCANCODE_E]) {
+	if (keys[SDL_SCANCODE_J] && !keys[SDL_SCANCODE_L]) {
 		angle -= 5.0*(PI / 180);
 	}
-	else if ((keys[SDL_SCANCODE_E] && !keys[SDL_SCANCODE_Q])) {
+	else if ((keys[SDL_SCANCODE_L] && !keys[SDL_SCANCODE_J])) {
 		angle += 5.0*(PI / 180);
 	}
 }
 
 void Entity::shoot(){
+	const Uint8 *keys = SDL_GetKeyboardState(NULL);
+	if (keys[SDL_SCANCODE_K]) {
+		velocity_x = 0.001;
+		velocity_y = 0.001;
+		angle2 = angle;
+	}
+}
 
+void Entity::behaviorAI(){
+
+	/*if (alive){
+		velocity_y = 0.005;
+		velocity_x = 0.00;
+		if (collidedTop){
+			velocity_y = 0.0;
+			velocity_x = 0.01;
+			if (collidedRight){
+				velocity_x = -0.01;
+				velocity_y = 0.0;
+				if (collidedLeft) {
+					velocity_x = 0.0;
+					velocity_y = -0.005;
+				}
+			}
+		}
+		else if (collidedBottom && collidedLeft && collidedRight && collidedTop) {
+			collidedTop = false;
+			collidedRight = false;
+			collidedLeft = false;
+			collidedBottom = false;
+		}
+	}*/
+
+	
+	//go down
+	//go right
+	/*else  if (!collidedRight) {
+		velocity_x = 0.001;
+		velocity_y = 0.0;
+	}
+	//go left
+	else if (!collidedLeft) {
+		velocity_y = 0.0;
+		velocity_x = -0.004;
+	}
+	*/
+	//go top
+	if (collidedTop == false) {
+		velocity_y = 0.005;
+		//velocity_x = 0.0;
+	}
+	else if (collidedBottom == false) {
+		velocity_y = -0.005;
+		//velocity_x = 0.0;
+	}
+	else if (collidedTop == true && collidedBottom == true) {
+		//velocity_x = 0.0;
+		velocity_y = 0.0;
+		collidedBottom = false;
+		collidedTop = false;
+	}
 }

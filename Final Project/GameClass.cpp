@@ -218,7 +218,16 @@ bool GameClass::readEntityData(std::ifstream &stream) {
 	}
 	return true;
 }
-void GameClass::placeEntity(string type, float placeX, float placeY){	if (type == "player"){		player = new Entity(placeX+.19, placeY-0.995, 98, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "coin"){		enemy1 = new Entity(placeX+0.4, placeY-0.8, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "key"){		enemy2 = new Entity(placeX+3.75, placeY-1.45, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "aimCursor"){		aimCursor = new Entity(0.270000011, -0.995, 50, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "door"){		enemy3 = new Entity(placeX, placeY-0.2, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "bullet"){		bullet = new Entity(placeX + .19, placeY - 0.995, 8, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}}
+void GameClass::placeEntity(string type, float placeX, float placeY){	if (type == "player"){		player = new Entity(placeX+.19, placeY-0.995, 98, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "enemy1"){		enemy1 = new Entity(placeX+0.4, placeY-0.8, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);		enemy1->collidedBottom = false;
+		enemy1->collidedLeft = false;
+		enemy1->collidedRight = false;
+		enemy1->collidedTop = false;	}	if (type == "enemy2"){		enemy2 = new Entity(placeX+3.75, placeY-1.45, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);		enemy2->collidedBottom = false;
+		enemy2->collidedLeft = false;
+		enemy2->collidedRight = false;
+		enemy2->collidedTop = false;	}	if (type == "aimCursor"){		aimCursor = new Entity(0.270000011, -0.995, 50, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "enemy3"){		enemy3 = new Entity(placeX, placeY-0.2, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);		enemy3->collidedBottom = false;
+		enemy3->collidedLeft = false;
+		enemy3->collidedRight = false;
+		enemy3->collidedTop = false;	}	if (type == "bullet"){		bullet = new Entity(placeX + .19, placeY - 0.995, 8, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}}
 void GameClass::Update(float elapsed) {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_QUIT || event.type == SDL_WINDOWEVENT_CLOSE) {
@@ -248,7 +257,7 @@ void GameClass::Render() {
 	switch (state) {
 	case STATE_MAIN_MENU:
 		DrawText(fontTexture, "Welcome to My Game!", -1.1f, 0.25f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
-		DrawText(fontTexture, "Use WASD and Mouse", -1.1f, -0.25f, 0.095f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		DrawText(fontTexture, "Use WASD and Q and E and Space", -1.1f, -0.25f, 0.095f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		DrawText(fontTexture, "Space to Start", -1.1f, -0.45f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 		break;
 	case STATE_GAME_LEVEL:
@@ -288,10 +297,27 @@ bool GameClass::processEvents() {
 		aimCursor->collidedBottom = false;
 		aimCursor->collidedLeft = false;
 		aimCursor->collidedRight = false;
+		bullet->collidedBottom = false;
+		bullet->collidedLeft = false;
+		bullet->collidedRight = false;
+		bullet->collidedTop = false;
+
+		
+		
+		
+		entityCollisionX(enemy1);
+		entityCollisionY(enemy1);
+		entityCollisionX(enemy2);
+		entityCollisionY(enemy2);
+		entityCollisionX(enemy3);
+		entityCollisionY(enemy3);
+
 		entityCollisionY(player);
 		entityCollisionX(player);
 		//entityCollisionX(aimCursor);
 		//entityCollisionY(aimCursor);
+		entityCollisionY(bullet);
+		entityCollisionX(bullet);
 		Render();
 		FixedUpdate();
 		
@@ -315,6 +341,9 @@ bool GameClass::processEvents() {
 		}
 	}
 	else if (state == STATE_GAME_LEVEL ){
+		if (keys[SDL_SCANCODE_ESCAPE]){
+			done = true;
+		}
 		if (player->collidesWith(enemy1)){
 			//coin = new Entity(coin->x, coin->y, 12, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
 			//Mix_PlayChannel(-1, someSound, 0);
@@ -330,8 +359,46 @@ bool GameClass::processEvents() {
 			//Mix_PlayChannel(-1, someSound, 0);
 			hit3 = true;
 		}
+		if (bullet->collidesWith(enemy1) && bullet->velocity_x > 0.0 && bullet->velocity_y > 0.0){
+			bullet->collidedTop = true;
+			enemy1->alive = false;
+			enemy1->x -= 100;
+			enemy1->y -= 100;
+		}
+		else {
+			enemy1->behaviorAI();
+		}
+		if (bullet->collidesWith(enemy2) && bullet->velocity_x > 0.0 && bullet->velocity_y > 0.0){
+			bullet->collidedTop = true;
+			enemy2->alive = false;
+			enemy2->x -= 100;
+			enemy2->y -= 100;
+		}
+		else {
+			enemy2->behaviorAI();
+		}
+		if (bullet->collidesWith(enemy3) && bullet->velocity_x > 0.0 && bullet->velocity_y > 0.0){
+			bullet->collidedTop = true;
+			enemy3->alive = false;
+			enemy3->x -= 100;
+			enemy3->y -= 100;
+		}
+		else {
+			enemy3->behaviorAI();
+		}
+		if (bullet->collidedTop || bullet->collidedBottom || bullet->collidedLeft || bullet->collidedRight){
+			bullet->velocity_x = 0.0;
+			bullet->velocity_y = 0.0;
+		}
+		if (bullet->velocity_x == 0.0 || bullet->velocity_y == 0.0) {
+			bullet->x = player->x;
+			bullet->y = player->y;
+		}
 		if ((hit1 || hit2 || hit3)){
 			state = STATE_LOSER;
+		}
+		if ((!enemy1->alive && !enemy2->alive && !enemy3->alive)) {
+			state = STATE_WINNER;
 		}
 	}
 	else if (state == STATE_WINNER){
@@ -348,8 +415,10 @@ bool GameClass::processEvents() {
 			hit1 = false;
 			hit2 = false;
 			hit3 = false;
-			player->x = 0.270000011;
-			player->y = -0.995;
+			enemy1->alive = true;
+			enemy2->alive = true;
+			enemy3->alive = true;
+			readTileMap();
 			state = STATE_GAME_LEVEL;
 		}
 	}
@@ -374,10 +443,40 @@ void GameClass::FixedUpdate(){
 	player->velocity_y += player->acceleration_y * FIXED_TIMESTEP;
 	player->x += player->velocity_x * FIXED_TIMESTEP;
 	player->y += player->velocity_y * FIXED_TIMESTEP;
+
 	
+
+	enemy1->x += enemy1->velocity_x;
+	enemy1->y += enemy1->velocity_y;
+
+	enemy2->x += enemy2->velocity_x;
+	enemy2->y += enemy2->velocity_y;
+
+	enemy3->x += enemy3->velocity_x;
+	enemy3->y += enemy3->velocity_y;
+
 	aimCursor->aimMovement();
 	aimCursor->x = player->x + sin(aimCursor->angle) * 0.5;
 	aimCursor->y = player->y + cos(aimCursor->angle) * 0.5;
+	bullet->angle = aimCursor->angle;
+	//if (bullet->velocity_x == 0.0 && bullet->velocity_y == 0.0) {
+		bullet->shoot();
+	//}
+	if (bullet->velocity_x > 0.0) {
+		bullet->x += sin(bullet->angle2) * .05;
+	}
+	else {
+		bullet->x = player->x;
+		//bullet->velocity_x = 0.0;
+	}
+	if (bullet->velocity_y > 0.0) {
+		bullet->y += cos(bullet->angle2) * .05;
+	}
+	else {
+		bullet->y = player->y;
+		//bullet->velocity_y = 0.0;
+	}
+	
 }
 
 void GameClass::getTileCoordinates(float tileX, float tileY, int *gridX, int *gridY) {
@@ -496,9 +595,18 @@ void GameClass::renderLevel(){
 
 	// draw the players
 	player->Draw(translateX, translateY);
-	enemy1->Draw(translateX, translateY);
-	enemy2->Draw(translateX, translateY);
-	enemy3->Draw(translateX, translateY);
+	if (enemy1->alive) {
+		enemy1->Draw(translateX, translateY);
+	}
+	if (enemy2->alive) {
+		enemy2->Draw(translateX, translateY);
+	}
+	if (enemy3->alive) {
+		enemy3->Draw(translateX, translateY);
+	}
 	aimCursor->Draw(translateX, translateY);
-	bullet->Draw(translateX, translateY);
+	if (bullet->velocity_x != 0.0 && bullet->velocity_y != 0.0){
+		bullet->Draw(translateX, translateY);
+	}
+	
 }

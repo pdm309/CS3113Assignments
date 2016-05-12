@@ -50,24 +50,19 @@ type=player
 location=4,9,0,0
 
 [ObjectsLayer]
-# coin
-type=coin
+# enemy1
+type=enemy1
 location=48,20,0,0
 
 [ObjectsLayer]
-# key
-type=key
+# enemy2
+type=enemy2
 location=7,29,0,0
 
 [ObjectsLayer]
-# door
-type=door
+# enemy3
+type=enemy3
 location=49,3,0,0
-
-[ObjectsLayer]
-# player2
-type=player2
-location=4,45,0,0
 
 [ObjectsLayer]
 # aimCursor

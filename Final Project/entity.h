@@ -25,9 +25,11 @@ public:
 	void movement();
 	void aimMovement();
 	void shoot();
+	void behaviorAI();
 	float x;
 	float y;
 	float angle;
+	float angle2;
 	float gravity;
 	float u;
 	float v;
@@ -46,7 +48,7 @@ public:
 	void jump();
 	bool playerDead();
 	bool enableCollisions;
-	
+	bool alive;
 	bool collidedBottom;
 	bool collidedTop;
 	bool collidedLeft;
