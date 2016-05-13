@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include "math.h"
-
+#include <SDL_mixer.h>
 #define FIXED_TIMESTEP 0.0166666f
 #define MAX_TIMESTEPS 6
 using namespace std;
@@ -24,7 +24,7 @@ public:
 	float lerp(float v0, float v1, float t);
 	void movement();
 	void aimMovement();
-	void shoot();
+	void shoot(Mix_Chunk* sound);
 	void behaviorAI();
 	float x;
 	float y;

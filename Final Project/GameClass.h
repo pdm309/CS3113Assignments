@@ -13,10 +13,10 @@
 #include <SDL_mixer.h>
 using namespace std;
 
-enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL, STATE_WINNER, STATE_LOSER };
+enum GameState { STATE_MAIN_MENU, STATE_GAME_LEVEL, STATE_WINNER, STATE_LOSER , STATE_NEXT_LEVEL};
 class GameClass {
 public:
-	GameClass();
+	GameClass(int level);
 	~GameClass();
 	void Init();
 	bool processEvents();
@@ -34,6 +34,10 @@ public:
 		const float &b,
 		const float &a);
 	void readTileMap();
+	void entityCollide(Entity* entity);
+	void playerCollidesWithEnemy();
+	void updateEnemy();
+	void hitEnemy();
 	bool readHeader(std::ifstream &stream);
 	bool readLayerData(std::ifstream &stream);
 	bool readEntityData(std::ifstream &stream);
@@ -56,9 +60,12 @@ public:
 	Mix_Music *music;
 	Mix_Chunk *someSound;
 	Mix_Chunk *deathSound;
+	Mix_Chunk *fireSound;
+	Mix_Chunk *hitSound;
 	bool hit1;
 	bool hit2;
 	bool hit3;
+	int levelSelect;
 	vector <Entity*> stat;
 	bool done;
 	float lastFrameTicks;

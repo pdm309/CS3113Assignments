@@ -226,12 +226,13 @@ void Entity::aimMovement(){
 	}
 }
 
-void Entity::shoot(){
+void Entity::shoot(Mix_Chunk* sound){
 	const Uint8 *keys = SDL_GetKeyboardState(NULL);
 	if (keys[SDL_SCANCODE_K]) {
 		velocity_x = 0.001;
 		velocity_y = 0.001;
 		angle2 = angle;
+		Mix_PlayChannel(-1, sound, 0);
 	}
 }
 

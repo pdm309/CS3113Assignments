@@ -4,7 +4,8 @@
 #define SHEET_SPRITE_COLUMNS 16
 #define SHEET_SPRITE_ROWS 8
 #define TILE_SIZE 0.08f
-GameClass::GameClass() {
+GameClass::GameClass(int level) {
+	levelSelect = level;
 	Init();
 	done = false;
 	state = STATE_MAIN_MENU;
@@ -14,11 +15,13 @@ GameClass::GameClass() {
 	spriteSheet = LoadTexture("sprites.png");
 	readTileMap();
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
-	music = Mix_LoadMUS("background.mp3");
-	Mix_PlayMusic(music, -1); // repeat it indefinitely
 	
+	music = Mix_LoadMUS("fountain.mp3");
+	Mix_PlayMusic(music, -1); // repeat it indefinitely
 	someSound = Mix_LoadWAV("cheer.wav");
 	deathSound = Mix_LoadWAV("falling.wav");
+	fireSound = Mix_LoadWAV("fire.wav");
+	hitSound = Mix_LoadWAV("hit.wav");
 	
 }
 
@@ -116,25 +119,64 @@ GameClass::~GameClass() {
 	Mix_FreeMusic(music);
 	Mix_FreeChunk(someSound);
 	Mix_FreeChunk(deathSound);
+	Mix_FreeChunk(fireSound);
+	Mix_FreeChunk(hitSound);
 	SDL_Quit();
 }
 
 void GameClass::readTileMap(){
-	ifstream infile("level1.txt");
-	string line;
-	while (getline(infile, line)) {
-		if (line == "[header]") {
-			if (!readHeader(infile)) {
-				return;
+	if (levelSelect == 1){
+		ifstream infile("level1.txt");
+		string line;
+		while (getline(infile, line)) {
+			if (line == "[header]") {
+				if (!readHeader(infile)) {
+					return;
+				}
+			}
+			else if (line == "[layer]") {
+				readLayerData(infile);
+			}
+			else if (line == "[ObjectsLayer]") {
+				readEntityData(infile);
 			}
 		}
-		else if (line == "[layer]") {
-			readLayerData(infile);
-		}
-		else if (line == "[ObjectsLayer]") {
-			readEntityData(infile);
+	}
+	else if (levelSelect == 2){
+		ifstream infile("level2.txt");
+		string line;
+		while (getline(infile, line)) {
+			if (line == "[header]") {
+				if (!readHeader(infile)) {
+					return;
+				}
+			}
+			else if (line == "[layer]") {
+				readLayerData(infile);
+			}
+			else if (line == "[ObjectsLayer]") {
+				readEntityData(infile);
+			}
 		}
 	}
+	else if (levelSelect == 3){
+		ifstream infile("level3.txt");
+		string line;
+		while (getline(infile, line)) {
+			if (line == "[header]") {
+				if (!readHeader(infile)) {
+					return;
+				}
+			}
+			else if (line == "[layer]") {
+				readLayerData(infile);
+			}
+			else if (line == "[ObjectsLayer]") {
+				readEntityData(infile);
+			}
+		}
+	}
+	
 }
 
 bool GameClass::readHeader(std::ifstream &stream) {
@@ -223,7 +265,7 @@ bool GameClass::readEntityData(std::ifstream &stream) {
 void GameClass::placeEntity(string type, float placeX, float placeY){	if (type == "player"){		player = new Entity(placeX+.19, placeY-0.995, 98, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "enemy1"){		enemy1 = new Entity(placeX+0.4, placeY-0.8, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);		enemy1->collidedBottom = false;
 		enemy1->collidedLeft = false;
 		enemy1->collidedRight = false;
-		enemy1->collidedTop = false;	}	if (type == "enemy2"){		enemy2 = new Entity(placeX+3.75, placeY-1.45, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);		enemy2->collidedBottom = false;
+		enemy1->collidedTop = false;	}	if (type == "enemy2"){		enemy2 = new Entity(placeX+2.75, placeY-1.45, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);		enemy2->collidedBottom = false;
 		enemy2->collidedLeft = false;
 		enemy2->collidedRight = false;
 		enemy2->collidedTop = false;	}	if (type == "aimCursor"){		aimCursor = new Entity(0.270000011, -0.995, 50, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);	}	if (type == "enemy3"){		enemy3 = new Entity(placeX, placeY-0.2, 81, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);		enemy3->collidedBottom = false;
@@ -236,9 +278,6 @@ void GameClass::Update(float elapsed) {
 			done = true;
 		}
 		
-		if (event.type == SDL_MOUSEBUTTONDOWN){
-			aimCursor->shoot();
-		}
 		/*if (event.type == SDL_MOUSEMOTION){
 			float aimx = (((float)event.motion.x / 800.0f) * 2.66f) - 1.33f;
 			aimCursor->x = event.motion.x;
@@ -258,9 +297,23 @@ void GameClass::Render() {
 	// render stuff
 	switch (state) {
 	case STATE_MAIN_MENU:
-		DrawText(fontTexture, "Welcome to My Game!", -1.1f, 0.25f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
-		DrawText(fontTexture, "Use WASD and JKL", -1.1f, -0.25f, 0.095f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-		DrawText(fontTexture, "Space to Start", -1.1f, -0.45f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		switch (levelSelect){
+		case 1:
+			DrawText(fontTexture, "Welcome to My Game!", -1.1f, 0.25f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
+			DrawText(fontTexture, "Use WASD and JKL", -1.1f, -0.25f, 0.095f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+			DrawText(fontTexture, "Space to Start", -1.1f, -0.45f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+			break;
+		case 2:
+			DrawText(fontTexture, "You've made it this far!", -1.1f, 0.25f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
+			DrawText(fontTexture, "But you won't win.", -1.1f, -0.25f, 0.095f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+			DrawText(fontTexture, "Space to Start", -1.1f, -0.45f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+			break;
+		case 3:
+			DrawText(fontTexture, "How did you beat Level 2!?", -1.1f, 0.25f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
+			DrawText(fontTexture, "This as far as you'll get...", -1.1f, -0.25f, 0.095f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+			DrawText(fontTexture, "Space to Start", -1.1f, -0.45f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+			break;
+		}
 		break;
 	case STATE_GAME_LEVEL:
 		renderLevel();
@@ -273,6 +326,8 @@ void GameClass::Render() {
 		Mix_PlayChannel(-1, someSound, 0);
 		DrawText(fontTexture, "Congratulations!", -0.9f, 0.3f, 0.09f, 0.005f, 1.0f, 1.0f, 1.0f, 1.0f);
 		DrawText(fontTexture, "Press ESC to quit.", -0.8f, -0.4f, 0.1f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+		break;
+	case STATE_NEXT_LEVEL:
 		break;
 	}
 	SDL_GL_SwapWindow(displayWindow);
@@ -304,23 +359,24 @@ bool GameClass::processEvents() {
 		bullet->collidedLeft = false;
 		bullet->collidedRight = false;
 		bullet->collidedTop = false;
+		
+		switch (levelSelect){
+		case 1:
+			entityCollide(enemy1);
+			break;
+		case 2:
+			entityCollide(enemy1);
+			entityCollide(enemy2);
+			break;
+		case 3:
+			entityCollide(enemy1);
+			entityCollide(enemy2);
+			entityCollide(enemy3);
+			break;
+		}
 
-		
-		
-		
-		entityCollisionX(enemy1);
-		entityCollisionY(enemy1);
-		entityCollisionX(enemy2);
-		entityCollisionY(enemy2);
-		entityCollisionX(enemy3);
-		entityCollisionY(enemy3);
-
-		entityCollisionY(player);
-		entityCollisionX(player);
-		//entityCollisionX(aimCursor);
-		//entityCollisionY(aimCursor);
-		entityCollisionY(bullet);
-		entityCollisionX(bullet);
+		entityCollide(player);
+		entityCollide(bullet);
 		Render();
 		FixedUpdate();
 		
@@ -347,48 +403,10 @@ bool GameClass::processEvents() {
 		if (keys[SDL_SCANCODE_ESCAPE]){
 			done = true;
 		}
-		if (player->collidesWith(enemy1)){
-			//coin = new Entity(coin->x, coin->y, 12, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
-			//Mix_PlayChannel(-1, someSound, 0);
-			hit1 = true;
-		}
-		if (player->collidesWith(enemy2)){
-			//enemy1 = new Entity(enemy1->x, enemy1->y, 12, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
-			//Mix_PlayChannel(-1, someSound, 0);
-			hit2 = true;
-		}
-		if (player->collidesWith(enemy3)){
-			//door = new Entity(door->x, door->y, 12, SHEET_SPRITE_COLUMNS, SHEET_SPRITE_ROWS, 0.5, spriteSheet);
-			//Mix_PlayChannel(-1, someSound, 0);
-			hit3 = true;
-		}
-		if (bullet->collidesWith(enemy1) && bullet->velocity_x > 0.0 && bullet->velocity_y > 0.0){
-			bullet->collidedTop = true;
-			enemy1->alive = false;
-			enemy1->x -= 100;
-			enemy1->y -= 100;
-		}
-		else {
-			enemy1->behaviorAI();
-		}
-		if (bullet->collidesWith(enemy2) && bullet->velocity_x > 0.0 && bullet->velocity_y > 0.0){
-			bullet->collidedTop = true;
-			enemy2->alive = false;
-			enemy2->x -= 100;
-			enemy2->y -= 100;
-		}
-		else {
-			enemy2->behaviorAI();
-		}
-		if (bullet->collidesWith(enemy3) && bullet->velocity_x > 0.0 && bullet->velocity_y > 0.0){
-			bullet->collidedTop = true;
-			enemy3->alive = false;
-			enemy3->x -= 100;
-			enemy3->y -= 100;
-		}
-		else {
-			enemy3->behaviorAI();
-		}
+		
+		playerCollidesWithEnemy();
+		hitEnemy();
+		
 		if (bullet->collidedTop || bullet->collidedBottom || bullet->collidedLeft || bullet->collidedRight){
 			bullet->velocity_x = 0.0;
 			bullet->velocity_y = 0.0;
@@ -397,16 +415,17 @@ bool GameClass::processEvents() {
 			bullet->x = player->x;
 			bullet->y = player->y;
 		}
-		if ((hit1 || hit2 || hit3)){
+		if (hit1){
 			Mix_PlayChannel(-1, deathSound, 0);
 			player->scale -= .05;
 			if (player->scale <= 0){
 				state = STATE_LOSER;
 			}
 		}
-		if ((!enemy1->alive && !enemy2->alive && !enemy3->alive)) {
-			state = STATE_WINNER;
-		}
+	}
+	else if (state == STATE_NEXT_LEVEL)
+	{
+		done = true;
 	}
 	else if (state == STATE_WINNER){
 		if (keys[SDL_SCANCODE_ESCAPE]){
@@ -422,9 +441,20 @@ bool GameClass::processEvents() {
 			hit1 = false;
 			hit2 = false;
 			hit3 = false;
-			enemy1->alive = true;
-			enemy2->alive = true;
-			enemy3->alive = true;
+			switch (levelSelect){
+			case 1:
+				enemy1->alive = true;
+				break;
+			case 2:
+				enemy1->alive = true;
+				enemy2->alive = true;
+				break;
+			case 3:
+				enemy1->alive = true;
+				enemy2->alive = true;
+				enemy3->alive = true;
+				break;
+			}
 			readTileMap();
 			state = STATE_GAME_LEVEL;
 		}
@@ -433,13 +463,104 @@ bool GameClass::processEvents() {
 
 }
 
+void GameClass::entityCollide(Entity* entity){
+	entityCollisionX(entity);
+	entityCollisionY(entity);
+}
 
+void GameClass::hitEnemy(){
+	switch (levelSelect){
+	case 1:
+		if (bullet->collidesWith(enemy1) && bullet->velocity_x > 0.0 && bullet->velocity_y > 0.0){
+			Mix_PlayChannel(-1, hitSound, 0);
+			bullet->collidedTop = true;
+			enemy1->alive = false;
+			enemy1->x -= 100;
+			enemy1->y -= 100;
+		}
+		else {
+			enemy1->behaviorAI();
+		}
+		break;
+	case 2:
+		if (bullet->collidesWith(enemy1) && bullet->velocity_x > 0.0 && bullet->velocity_y > 0.0){
+			Mix_PlayChannel(-1, hitSound, 0);
+			bullet->collidedTop = true;
+			enemy1->alive = false;
+			enemy1->x -= 100;
+			enemy1->y -= 100;
+		}
+		else {
+			enemy1->behaviorAI();
+		}
+		if (bullet->collidesWith(enemy2) && bullet->velocity_x > 0.0 && bullet->velocity_y > 0.0){
+			Mix_PlayChannel(-1, hitSound, 0);
+			bullet->collidedTop = true;
+			enemy2->alive = false;
+			enemy2->x -= 100;
+			enemy2->y -= 100;
+		}
+		else {
+			enemy2->behaviorAI();
+		}
+		break;
+	case 3:
+		if (bullet->collidesWith(enemy1) && bullet->velocity_x > 0.0 && bullet->velocity_y > 0.0){
+			Mix_PlayChannel(-1, hitSound, 0);
+			bullet->collidedTop = true;
+			enemy1->alive = false;
+			enemy1->x -= 100;
+			enemy1->y -= 100;
+		}
+		else {
+			enemy1->behaviorAI();
+		}
+		if (bullet->collidesWith(enemy2) && bullet->velocity_x > 0.0 && bullet->velocity_y > 0.0){
+			Mix_PlayChannel(-1, hitSound, 0);
+			bullet->collidedTop = true;
+			enemy2->alive = false;
+			enemy2->x -= 100;
+			enemy2->y -= 100;
+		}
+		else {
+			enemy2->behaviorAI();
+		}
+		if (bullet->collidesWith(enemy3) && bullet->velocity_x > 0.0 && bullet->velocity_y > 0.0){
+			Mix_PlayChannel(-1, hitSound, 0);
+			bullet->collidedTop = true;
+			enemy3->alive = false;
+			enemy3->x -= 100;
+			enemy3->y -= 100;
+		}
+		else {
+			enemy3->behaviorAI();
+		}
+		break;
+	}
+}
 
+void GameClass::playerCollidesWithEnemy(){
+	switch (levelSelect){
+	case 1:
+		if (player->collidesWith(enemy1)){
+			hit1 = true;
+		}
+		break;
+	case 2:
+		if (player->collidesWith(enemy1) || player->collidesWith(enemy2)){
+			hit1 = true;
+		}
+		break;
+	case 3:
+		if (player->collidesWith(enemy1) || player->collidesWith(enemy2) || player->collidesWith(enemy3)){
+			hit1 = true;
+		}
+		break;
+	}
+}
 float lerp(float v0, float v1, float t) {
 	return (1.0 - t)*v0 + t*v1;
 }
-
-
 void GameClass::FixedUpdate(){
 	if (hit1 == false && hit2 == false && hit3 == false) {
 		player->movement();
@@ -452,23 +573,14 @@ void GameClass::FixedUpdate(){
 		player->x += player->velocity_x * FIXED_TIMESTEP;
 		player->y += player->velocity_y * FIXED_TIMESTEP;
 
-
-
-		enemy1->x += enemy1->velocity_x;
-		enemy1->y += enemy1->velocity_y;
-
-		enemy2->x += enemy2->velocity_x;
-		enemy2->y += enemy2->velocity_y;
-
-		enemy3->x += enemy3->velocity_x;
-		enemy3->y += enemy3->velocity_y;
+		updateEnemy();
 
 		aimCursor->aimMovement();
 		aimCursor->x = player->x + sin(aimCursor->angle) * 0.5;
 		aimCursor->y = player->y + cos(aimCursor->angle) * 0.5;
 		bullet->angle = aimCursor->angle;
 		//if (bullet->velocity_x == 0.0 && bullet->velocity_y == 0.0) {
-		bullet->shoot();
+		bullet->shoot(fireSound);
 		//}
 		if (bullet->velocity_x > 0.0) {
 			bullet->x += sin(bullet->angle2) * .05;
@@ -487,6 +599,35 @@ void GameClass::FixedUpdate(){
 	}
 		
 	
+}
+
+void GameClass::updateEnemy(){
+
+	switch (levelSelect){
+	case 1:
+		enemy1->x += enemy1->velocity_x;
+		enemy1->y += enemy1->velocity_y;
+		break;
+	case 2:
+		enemy1->x += enemy1->velocity_x;
+		enemy1->y += enemy1->velocity_y;
+
+		enemy2->x += enemy2->velocity_x;
+		enemy2->y += enemy2->velocity_y;
+		break;
+	case 3:
+		enemy1->x += enemy1->velocity_x;
+		enemy1->y += enemy1->velocity_y;
+
+		enemy2->x += enemy2->velocity_x;
+		enemy2->y += enemy2->velocity_y;
+
+		enemy3->x += enemy3->velocity_x;
+		enemy3->y += enemy3->velocity_y;
+		break;
+	}
+	
+
 }
 
 void GameClass::getTileCoordinates(float tileX, float tileY, int *gridX, int *gridY) {
@@ -605,15 +746,44 @@ void GameClass::renderLevel(){
 
 	// draw the players
 	player->Draw(translateX, translateY);
-	if (enemy1->alive) {
-		enemy1->Draw(translateX, translateY);
+
+	switch (levelSelect){
+	case 1:
+		if (enemy1->alive) {
+			enemy1->Draw(translateX, translateY);
+		}
+		else {
+			state = STATE_NEXT_LEVEL;
+		}
+		break;
+	case 2:
+		if (enemy1->alive) {
+			enemy1->Draw(translateX, translateY);
+		}
+		if (enemy2->alive) {
+			enemy2->Draw(translateX, translateY);
+		}
+		else if (!enemy1->alive && !enemy2->alive){
+			state = STATE_NEXT_LEVEL;
+		}
+		break;
+	case 3:
+		if (enemy1->alive) {
+			enemy1->Draw(translateX, translateY);
+		}
+		if (enemy2->alive) {
+			enemy2->Draw(translateX, translateY);
+		}
+		if (enemy3->alive) {
+			enemy3->Draw(translateX, translateY);
+		}
+		else if (!enemy1->alive && !enemy2->alive && !enemy3->alive){
+			state = STATE_WINNER;
+		}
+		break;
 	}
-	if (enemy2->alive) {
-		enemy2->Draw(translateX, translateY);
-	}
-	if (enemy3->alive) {
-		enemy3->Draw(translateX, translateY);
-	}
+
+	
 	aimCursor->Draw(translateX, translateY);
 	if (bullet->velocity_x != 0.0 && bullet->velocity_y != 0.0){
 		bullet->Draw(translateX, translateY);
